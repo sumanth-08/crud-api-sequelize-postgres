@@ -9,7 +9,7 @@ const { RESPONSE } = require("../../config/global");
 const { initUserModel } = require("../../models/userModel");
 
 // POST
-router.post("/", async (req, res, next) => {
+router.post("/", async (req, res) => {
   uploads(req, res, function (err) {
     if (!req.file) {
       return send(res, RESPONSE.FILE_ERRROR);
@@ -34,13 +34,15 @@ router.post("/", async (req, res, next) => {
         let { first_name, last_name, phone, email } = req.body;
         const userModel = await initUserModel();
 
-        const addData = await userModel.create({
-          first_name: first_name,
-          last_name: last_name,
-          phone: phone,
-          email: email,
-          image: data.Key,
-        });
+        if (!req.body.first_name) {
+          return send(res, RESPONSE.REQUIRED);
+        } else if (!req.body.last_name) {
+          return send(res, RESPONSE.REQUIRED);
+        } else if (!req.body.phone) {
+          return send(res, RESPONSE.REQUIRED);
+        } else if (!req.body.email) {
+          return send(res, RESPONSE.REQUIRED);
+        }
 
         const phoneNumberPattern = phone.match(/^\d{10}$/); // /^\d{10}$/   /^\+[0-9]+$/g
         if (
@@ -78,6 +80,14 @@ router.post("/", async (req, res, next) => {
         if (oldEmail) {
           return send(res, RESPONSE.EMAIL_ALREADY_EXISTS);
         }
+
+        const addData = await userModel.create({
+          first_name: first_name,
+          last_name: last_name,
+          phone: phone,
+          email: email,
+          image: data.Key,
+        });
 
         // return send(res, RESPONSE.SUCCESS);
         return res.status(200).send(addData);

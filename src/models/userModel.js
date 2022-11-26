@@ -2,6 +2,11 @@ const { Model, DataTypes } = require("sequelize");
 const { getConnection } = require("../helper/databaseConnection");
 
 const userModel = {
+  id: {
+    type: new DataTypes.INTEGER(),
+    autoIncrement: true,
+    primaryKey: true,
+  },
   first_name: {
     type: new DataTypes.STRING(200),
     allowNull: false,
@@ -28,7 +33,7 @@ const userModel = {
 
   image: {
     data: Buffer,
-    type: new DataTypes.STRING(200),
+    type: DataTypes.STRING(200),
     required: true,
   },
 
