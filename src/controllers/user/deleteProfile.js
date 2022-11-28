@@ -11,11 +11,13 @@ router.delete("/:id", async (req, res) => {
   try {
     const deleteUserDetails = await initUserModel();
     const id = req.params.id;
-    await deleteUserDetails.destroy({
-      where: {
-        // id: id,
-      },
-    });
+    let status = {
+      isActive: false,
+    };
+    let selector = {
+      where: { id: id },
+    };
+    await deleteUserDetails.update(status, selector);
     return send(res, RESPONSE.SUCCESS);
   } catch (err) {
     // return send(res, RESPONSE.UNKNOWN_ERROR);

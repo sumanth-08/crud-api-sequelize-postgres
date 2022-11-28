@@ -8,6 +8,7 @@ const uuid = require("uuid").v4;
 const { send, setErrorResponseMsg } = require("../../helper/responseHelper");
 const { RESPONSE } = require("../../config/global");
 const { initUserModel } = require("../../models/userModel");
+const { where } = require("sequelize");
 
 // PUT
 router.put("/:id", async (req, res) => {
@@ -17,24 +18,16 @@ router.put("/:id", async (req, res) => {
     } else if (err) {
       return send(res, RESPONSE.UNKNOWN_ERROR);
     }
-    try {
-      const id = req.params.id;
-      let { first_name, last_name, phone, email } = req.body;
-      const upadteUser = initUserModel();
 
-      const updatedData = await upadteUser.update(
-        {
-          first_name: first_name,
-          last_name: last_name,
-          phone: phone,
-          email: email,
-        },
-        {
-          where: {
-            id: id,
-          },
-        }
-      );
+    try {
+      const userModel = await initUserModel();
+      const id = req.params.id;
+      const updatedData = {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        phone: req.body.phone,
+        email: req.body.email,
+      };
 
       if (req.file) {
         const { Key } = await s3
@@ -47,22 +40,55 @@ router.put("/:id", async (req, res) => {
 
         updatedData.image = Key;
       }
-      const options = { new: true };
 
-      updatedData.update({
+      const requestBody = req.body;
+      let phone = requestBody.phone;
+      let email = requestBody.email;
+      const phoneNumberPattern = phone.match(/^\d{10}$/); // /^\d{10}$/   /^\+[0-9]+$/g
+      if (
+        !phoneNumberPattern ||
+        phoneNumberPattern.length <= 0 ||
+        phone.indexOf(" ") >= 0
+      ) {
+        const updated_response = setErrorResponseMsg(
+          RESPONSE.INVALID_INPUT_FORMAT,
+          "phone"
+        );
+        return send(res, updated_response);
+      }
+
+      // email validation
+      const emailPattern = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
+      if (
+        !emailPattern ||
+        emailPattern.length <= 0 ||
+        email.indexOf(" ") >= 0
+      ) {
+        const updated_response = setErrorResponseMsg(
+          RESPONSE.INVALID_INPUT_FORMAT,
+          "email"
+        );
+        return send(res, updated_response);
+      }
+
+      if (!req.body.first_name) {
+        return send(res, RESPONSE.REQUIRED);
+      } else if (!req.body.last_name) {
+        return send(res, RESPONSE.REQUIRED);
+      } else if (!req.body.phone) {
+        return send(res, RESPONSE.REQUIRED);
+      } else if (!req.body.email) {
+        return send(res, RESPONSE.REQUIRED);
+      }
+
+      let selector = {
         where: { id: id },
-      });
+      };
 
-      await upadteUser.update(
-        req.body,
-        { where: { id: id } }
-        // updatedData,
-        // options
-      );
-      //   return send(res, RESPONSE.SUCCESS);
-      res.status(400).send(updatedData);
+      await userModel.update(updatedData, selector);
+      return send(res, RESPONSE.SUCCESS);
     } catch (err) {
-      //   return send(res, RESPONSE.UNKNOWN_ERROR);
+      // return send(res, RESPONSE.UNKNOWN_ERROR);
       return res.status(400).send(err.message);
     }
   });
