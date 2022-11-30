@@ -5,9 +5,10 @@ const { send } = require("../../helper/responseHelper");
 const { RESPONSE } = require("../../config/global");
 const { ACTIVE, AWS_URL } = require("../../config/constants.js");
 const { initUserModel } = require("../../models/userModel");
+const authenticate = require("../../middleware/authentication");
 
 // GET
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
   try {
     let page = Number(req.query.page);
     page = page ? page : 0;
@@ -49,8 +50,7 @@ router.get("/", async (req, res) => {
       return send(res, RESPONSE.NO_RESULT_FOUND);
     }
   } catch (err) {
-    // return send(res, RESPONSE.UNKNOWN_ERROR);
-    return res.status(400).send(err.message);
+    return send(res, RESPONSE.UNKNOWN_ERROR);
   }
 });
 

@@ -9,9 +9,10 @@ const { send, setErrorResponseMsg } = require("../../helper/responseHelper");
 const { RESPONSE } = require("../../config/global");
 const { initUserModel } = require("../../models/userModel");
 const { where } = require("sequelize");
+const authenticate = require("../../middleware/authentication");
 
 // PUT
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticate, async (req, res) => {
   uploads(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       return send(res, RESPONSE.FILE_TOO_LARGE);
@@ -88,8 +89,7 @@ router.put("/:id", async (req, res) => {
       await userModel.update(updatedData, selector);
       return send(res, RESPONSE.SUCCESS);
     } catch (err) {
-      // return send(res, RESPONSE.UNKNOWN_ERROR);
-      return res.status(400).send(err.message);
+      return send(res, RESPONSE.UNKNOWN_ERROR);
     }
   });
 });

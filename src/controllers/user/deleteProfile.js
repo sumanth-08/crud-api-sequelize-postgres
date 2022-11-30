@@ -5,9 +5,10 @@ const { send } = require("../../helper/responseHelper");
 const { RESPONSE } = require("../../config/global");
 const { NO_ACTIVE } = require("../../config/constants.js");
 const { initUserModel } = require("../../models/userModel");
+const authenticate = require("../../middleware/authentication");
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, async (req, res) => {
   try {
     const deleteUserDetails = await initUserModel();
     const id = req.params.id;
@@ -20,8 +21,7 @@ router.delete("/:id", async (req, res) => {
     await deleteUserDetails.update(status, selector);
     return send(res, RESPONSE.SUCCESS);
   } catch (err) {
-    // return send(res, RESPONSE.UNKNOWN_ERROR);
-    return res.status(400).send(err.message);
+    return send(res, RESPONSE.UNKNOWN_ERROR);
   }
 });
 

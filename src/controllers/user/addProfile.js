@@ -7,9 +7,10 @@ const uuid = require("uuid").v4;
 const { send, setErrorResponseMsg } = require("../../helper/responseHelper");
 const { RESPONSE } = require("../../config/global");
 const { initUserModel } = require("../../models/userModel");
+const authenticate = require("../../middleware/authentication");
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/", authenticate, async (req, res) => {
   uploads(req, res, function (err) {
     if (!req.file) {
       return send(res, RESPONSE.FILE_ERRROR);
@@ -26,8 +27,7 @@ router.post("/", async (req, res) => {
     };
     s3.upload(params, async (error, data) => {
       if (error) {
-        // send(res, RESPONSE.UNKNOWN_ERROR);
-        return res.status(400).send(error.message);
+        send(res, RESPONSE.UNKNOWN_ERROR);
       }
 
       try {
@@ -81,7 +81,7 @@ router.post("/", async (req, res) => {
           return send(res, RESPONSE.EMAIL_ALREADY_EXISTS);
         }
 
-        const addData = await userModel.create({
+        await userModel.create({
           first_name: first_name,
           last_name: last_name,
           phone: phone,
@@ -89,11 +89,9 @@ router.post("/", async (req, res) => {
           image: data.Key,
         });
 
-        // return send(res, RESPONSE.SUCCESS);
-        return res.status(200).send(addData);
+        return send(res, RESPONSE.SUCCESS);
       } catch (err) {
-        // return send(res, RESPONSE.UNKNOWN_ERROR);
-        return res.status(400).send(err.message);
+        return send(res, RESPONSE.UNKNOWN_ERROR);
       }
     });
   });
