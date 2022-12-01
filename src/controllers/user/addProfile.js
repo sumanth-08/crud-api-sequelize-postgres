@@ -17,7 +17,7 @@ router.post("/", authenticate, async (req, res) => {
     } else if (err instanceof multer.MulterError) {
       return send(res, RESPONSE.FILE_TOO_LARGE);
     } else if (err) {
-      return res.status(400).send(err.message);
+      return send(res, RESPONSE.UNKNOWN_ERROR);
     }
 
     const params = {

@@ -63,7 +63,7 @@ router.post("/", async (req, res) => {
     user.token = token;
     return send(res, RESPONSE.SUCCESS);
   } catch (err) {
-    return res.status(400).send(err.message);
+    return send(res, RESPONSE.UNKNOWN_ERROR);
   }
 });
 
