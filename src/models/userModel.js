@@ -41,6 +41,11 @@ const userModel = {
     type: new DataTypes.BOOLEAN(),
     defaultValue: true,
   },
+
+  blocked_user_id: {
+		type: DataTypes.ARRAY(DataTypes.INTEGER),
+		allowNull: true,
+	}
 };
 
 let users = null;

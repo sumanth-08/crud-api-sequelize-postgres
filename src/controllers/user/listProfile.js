@@ -10,26 +10,22 @@ const authenticate = require("../../middleware/authentication");
 // GET
 router.get("/", authenticate, async (req, res) => {
   try {
-    let page = Number(req.query.page);
-    page = page ? page : 0;
-    let limit = parseInt(req.query.limit);
-    const result = {};
+    // let page = Number(req.query.page);
+    // page = page ? page : 0;
+    // let limit = parseInt(req.query.limit);
+    // const result = {};
 
-    let startIndex = page * limit;
-    if (startIndex > 0) {
-      result.previous = {
-        page: page - 1,
-        limit: limit,
-      };
-    }
-
+    let page = Number(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    let offset = (page - 1) * limit;
+    
     const userDetails = await initUserModel();
 
     let receive = await userDetails.findAll({
       where: { isActive: true },
       order: ["id"],
-      offset: page,
-      limit: limit,
+       limit: limit,
+       offset: offset
     });
 
     receive = receive.map((item) => {
@@ -50,7 +46,8 @@ router.get("/", authenticate, async (req, res) => {
       return send(res, RESPONSE.NO_RESULT_FOUND);
     }
   } catch (err) {
-    return send(res, RESPONSE.UNKNOWN_ERROR);
+    // return send(res, RESPONSE.UNKNOWN_ERROR);
+    return res.send(err.stack);
   }
 });
 

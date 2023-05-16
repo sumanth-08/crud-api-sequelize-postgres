@@ -31,7 +31,7 @@ router.post("/", authenticate, async (req, res) => {
       }
 
       try {
-        let { first_name, last_name, phone, email } = req.body;
+        let { first_name, last_name, phone, email, blocked_user_id } = req.body;
         const userModel = await initUserModel();
 
         if (!req.body.first_name) {
@@ -87,11 +87,13 @@ router.post("/", authenticate, async (req, res) => {
           phone: phone,
           email: email,
           image: data.Key,
+          blocked_user_id: [blocked_user_id]
         });
 
         return send(res, RESPONSE.SUCCESS);
       } catch (err) {
-        return send(res, RESPONSE.UNKNOWN_ERROR);
+        return res.send(err.stack);
+        // return send(res, RESPONSE.UNKNOWN_ERROR);
       }
     });
   });

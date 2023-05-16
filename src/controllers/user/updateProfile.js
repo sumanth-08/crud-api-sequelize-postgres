@@ -28,6 +28,8 @@ router.put("/:id", authenticate, async (req, res) => {
         last_name: req.body.last_name,
         phone: req.body.phone,
         email: req.body.email,
+        blocked_user_id: [...req.body.blocked_user_id]
+
       };
 
       if (req.file) {
@@ -42,45 +44,45 @@ router.put("/:id", authenticate, async (req, res) => {
         updatedData.image = Key;
       }
 
-      const requestBody = req.body;
-      let phone = requestBody.phone;
-      let email = requestBody.email;
-      const phoneNumberPattern = phone.match(/^\d{10}$/); // /^\d{10}$/   /^\+[0-9]+$/g
-      if (
-        !phoneNumberPattern ||
-        phoneNumberPattern.length <= 0 ||
-        phone.indexOf(" ") >= 0
-      ) {
-        const updated_response = setErrorResponseMsg(
-          RESPONSE.INVALID_INPUT_FORMAT,
-          "phone"
-        );
-        return send(res, updated_response);
-      }
+      // const requestBody = req.body;
+      // let phone = requestBody.phone;
+      // let email = requestBody.email;
+      // const phoneNumberPattern = phone.match(/^\d{10}$/); // /^\d{10}$/   /^\+[0-9]+$/g
+      // if (
+      //   !phoneNumberPattern ||
+      //   phoneNumberPattern.length <= 0 ||
+      //   phone.indexOf(" ") >= 0
+      // ) {
+      //   const updated_response = setErrorResponseMsg(
+      //     RESPONSE.INVALID_INPUT_FORMAT,
+      //     "phone"
+      //   );
+      //   return send(res, updated_response);
+      // }
 
-      // email validation
-      const emailPattern = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
-      if (
-        !emailPattern ||
-        emailPattern.length <= 0 ||
-        email.indexOf(" ") >= 0
-      ) {
-        const updated_response = setErrorResponseMsg(
-          RESPONSE.INVALID_INPUT_FORMAT,
-          "email"
-        );
-        return send(res, updated_response);
-      }
+      // // email validation
+      // const emailPattern = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
+      // if (
+      //   !emailPattern ||
+      //   emailPattern.length <= 0 ||
+      //   email.indexOf(" ") >= 0
+      // ) {
+      //   const updated_response = setErrorResponseMsg(
+      //     RESPONSE.INVALID_INPUT_FORMAT,
+      //     "email"
+      //   );
+      //   return send(res, updated_response);
+      // }
 
-      if (!req.body.first_name) {
-        return send(res, RESPONSE.REQUIRED);
-      } else if (!req.body.last_name) {
-        return send(res, RESPONSE.REQUIRED);
-      } else if (!req.body.phone) {
-        return send(res, RESPONSE.REQUIRED);
-      } else if (!req.body.email) {
-        return send(res, RESPONSE.REQUIRED);
-      }
+      // if (!req.body.first_name) {
+      //   return send(res, RESPONSE.REQUIRED);
+      // } else if (!req.body.last_name) {
+      //   return send(res, RESPONSE.REQUIRED);
+      // } else if (!req.body.phone) {
+      //   return send(res, RESPONSE.REQUIRED);
+      // } else if (!req.body.email) {
+      //   return send(res, RESPONSE.REQUIRED);
+      // }
 
       let selector = {
         where: { id: id },
@@ -89,7 +91,9 @@ router.put("/:id", authenticate, async (req, res) => {
       await userModel.update(updatedData, selector);
       return send(res, RESPONSE.SUCCESS);
     } catch (err) {
-      return send(res, RESPONSE.UNKNOWN_ERROR);
+      // return send(res, RESPONSE.UNKNOWN_ERROR);
+      return res.send(err.stack);
+
     }
   });
 });
